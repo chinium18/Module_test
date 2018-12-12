@@ -30,7 +30,7 @@ Keywords: centos6, machine-learning, ML, machine, learning, AI, deep, learning
 }
 
 # Source the function package file
-source scc_module.tcl
+source /projectnb/scv/shwei/Module_test/scc_module.tcl
 
 
 
