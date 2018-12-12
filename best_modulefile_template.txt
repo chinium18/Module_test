@@ -1,0 +1,115 @@
+#%Module1.0
+## 
+## tensorflow
+## r1.10
+
+proc ModulesHelp { } {
+     puts stderr {
+tensorflow r1.10: an open source software library for numerical computation using data flow graphs. This module is for use with BOTH
+CPUs and GPUs. When loaded the presence or absence of a GPU is detected and the appropriate version of the library is loaded.  This is
+compiled against the CUDA 9.2 and cuDNN 7.2 libraries.
+
+An open source software library for numerical computation using data flow graphs. This module is for use with BOTH
+CPUs and GPUs. When loaded the presence or absence of a GPU is detected and the appropriate version of the library is loaded. This is
+compiled against the CUDA 9.2 and cuDNN 7.2 libraries.
+
+For more information on tensorflow, please see https://www.tensorflow.org/
+
+The following environment variables are provided for convenience:
+$SCC_TENSORFLOW_DIR -- Base Package Directory
+$SCC_TENSORFLOW_BIN -- Package Executables Directory
+$SCC_TENSORFLOW_LIB -- Package Libraries Directory
+
+}
+}
+
+# NOTES: categories and keywords should be all lowercase. 
+module-whatis { an open source software library for numerical computation using data flow graphs. This module is for use with GPUs.
+Categories: machine-learning
+Keywords: centos6, machine-learning, ML, machine, learning, AI, deep, learning
+}
+
+# Source the function package file
+source scc_module.tcl
+
+
+
+# Call the check function to check if a prereq python loaded.
+set result [scc_module::check]
+set allowed_pythons [lindex $result 0]
+set loaded_modules [lindex $result 1]
+set py_match_ver [lindex $result 2]
+#puts stderr $loaded_modules
+
+
+##### If no appropriate Python has been loaded print the standard module error message.
+if { [ module-info mode load ] } {
+    if { ([ lsearch $allowed_pythons $py_match_ver ] == -1) } {
+     puts stderr { 
+-------------------------------------------------------------------------------
+ERROR: tensorflow/r1.10 requires a Python module to be loaded. This module is compatible
+with any of the python/2.7.x or python/3.6.x modules on the SCC.
+
+NOTE: If this module is loaded on an SCC node equipped with a GPU then the GPU-enabled 
+version of the tensorflow code will automatically be loaded.  This module is built with 
+CUDA 9.2 and cuDNN 7.2.
+
+  # EXAMPLE OF LOADING PYTHON
+  # module load python3/3.6.5
+  # or
+  # module load python2/2.7.15
+  # followed by:
+  module load tensorflow/r1.12
+-------------------------------------------------------------------------------
+}
+exit
+}
+}
+
+
+# Dyanmically identify and conflicts between loaded modules and the following list
+# of conflicting modules.
+set conflict_modules [ list anaconda2/* anaconda3/* cuda/4.2 cuda/5.0 cuda/6.5 cuda/7.5.18 cuda/8.0 cuda/9.1 tensorflow/r0.*  tensorflow/r1.0* tensorflow/r1.2* tensorflow/r1.3* tensorflow/r1.4* tensorflow/r1.8* ]
+
+# Call the check_conflict function to check if any confliction.
+set conflict_mod [scc_module::check_conflict $conflict_modules $loaded_modules]
+
+##### Now detect if the CUDA_VISIBLE_DEVICES variable is set.
+set has_cuda [scc_module::check_cuda]
+
+# Now...using the py_match_ver and has_cuda set the directories appropriately.
+set python_version [scc_module::check_python]
+set py_major_ver [lindex $python_version 0]
+set py_major_minor_ver [lindex $python_version 1]
+
+
+
+# Initialize the gpu extension to the empty string
+set gpu_ext {}
+if { $has_cuda } { set gpu_ext -gpu}
+# And finally set the install directory path
+set install_dir /share/pkg/tensorflow/r1.10/install/py$py_major_ver$gpu_ext
+# and site-packages
+set package_dir $install_dir/lib/python$py_major_minor_ver/site-packages
+ 
+
+setenv SCC_TENSORFLOW_DIR  {/share/pkg/tensorflow/r1.10}
+setenv SCC_TENSORFLOW_BIN  $install_dir/bin
+setenv SCC_TENSORFLOW_LIB  $install_dir/lib
+#setenv SCC_TENSORFLOW_INCLUDE  {/share/pkg/tensorflow/r1.10/install/include}
+#setenv SCC_TENSORFLOW_DATA     {/share/pkg/tensorflow/r1.10/install/data}
+#setenv SCC_TENSORFLOW_EXAMPLES {/share/pkg/tensorflow/r1.10/install/share/examples}
+#setenv SCC_TENSORFLOW_LICENSE  {/share/pkg/tensorflow/r1.10/install/license}
+
+#<PACKAGE-SPECIFIC-MODULE-CMDS>
+
+prepend-path PATH $install_dir/bin
+prepend-path PYTHONPATH $package_dir
+
+prepend-path LD_LIBRARY_PATH {/share/pkg/bazel/0.16.1/install/gcc/lib64} 
+if { $has_cuda } {
+  # Add CUDA 9.2 which includes cuDNN 7.2
+  prepend-path LD_LIBRARY_PATH {/share/pkg/cuda/9.2/install/lib64}
+  prepend-path LD_LIBRARY_PATH {/share/pkg/cuda/9.2/install/extras/CUPTI/lib64}
+}
+#prepend-path PKG_CONFIG_PATH {/share/pkg/tensorflow/r1.10/install/lib/pkgconfig}

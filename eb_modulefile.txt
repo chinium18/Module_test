@@ -1,0 +1,60 @@
+#%Module1.0
+## 
+## hail
+## test
+
+proc ModulesHelp { } {
+     puts stderr {
+hail test: open-source, scalable framework for exploring and analyzing genetic data
+
+<<Place Long Description of Package Here>>
+
+For more information on hail, please see https://hail.is/
+
+The following environment variables are provided for convenience:
+$SCC_HAIL_DIR -- Base Package Directory
+$SCC_HAIL_BIN -- Package Executables Directory
+$SCC_HAIL_LIB -- Package Libraries Directory
+$SCC_HAIL_INCLUDE -- Package Headers Directory
+$SCC_HAIL_DATA -- Package Data Directory
+$SCC_HAIL_EXAMPLES -- Package Examples Directory
+$SCC_HAIL_LICENSE -- Package License Information
+
+}
+}
+
+# NOTES: categories and keywords should be all lowercase. 
+module-whatis { open-source, scalable framework for exploring and analyzing genetic data
+Categories: hadoop
+Keywords: centos6, hadoop, genetic, annotation, microarray
+}
+
+set prereq_list [list  \
+    "spark/2\.*\.*" \
+    "python/\[(3\.6)|(2\.7)\]\.*" \
+]
+set prereq_default [list \
+    "spark/2.2.0" \
+    "python/3.6.2" \
+]
+
+source scc_module.tcl
+set checked [scc_module::check_prereq $prereq_list $prereq_default]
+
+
+# end of module-info
+
+
+setenv SCC_HAIL_DIR  {/share/pkg/hail/test}
+setenv SCC_HAIL_BIN  {/share/pkg/hail/test/install/bin}
+#setenv SCC_HAIL_LIB  {/share/pkg/hail/test/install/lib}
+#setenv SCC_HAIL_INCLUDE  {/share/pkg/hail/test/install/include}
+#setenv SCC_HAIL_DATA     {/share/pkg/hail/test/install/data}
+#setenv SCC_HAIL_EXAMPLES {/share/pkg/hail/test/install/share/examples}
+#setenv SCC_HAIL_LICENSE  {/share/pkg/hail/test/install/license}
+
+#<PACKAGE-SPECIFIC-MODULE-CMDS>
+
+prepend-path PATH {/share/pkg/hail/test/install/bin}
+#prepend-path LD_LIBRARY_PATH {/share/pkg/hail/test/install/lib}
+#prepend-path PKG_CONFIG_PATH {/share/pkg/hail/test/install/lib/pkgconfig}
